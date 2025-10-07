@@ -1,0 +1,236 @@
+# Navigation & basics (demo commands)
+
+Run them in a terminal.
+
+Navigation + filesystem
+
+`pwd                # print working directory 
+`ls -la             # list with hidden, long format 
+`cd /path/to/dir    # change dir 
+`tree -L 2          # directory tree
+`find /var/log -type f -name "*.log" -exec grep -i error {} +   `
+`# find files{find [WHERE to look] [WHAT to match] [WHAT to do when matched]}
+
+File operations
+
+`cp file.txt dest/ 
+`mv oldname newname 
+`rm file.txt 
+`mkdir -p a/b/c 
+`touch newfile 
+`stat file.txt 
+`file binary`
+
+Permissions & ownership
+
+`ls -l 
+`chmod u+rwx,g+rx,o-r file   # numeric: chmod 750 file 
+`chown user:group file 
+`sudo !!        # run last command as sudo`
+
+Process & job control
+
+`ps aux | grep process 
+`top                # or htop 
+`jobs               # background jobs 
+`bg %1              # resume job 1 background 
+`fg %1              # foreground 
+`pkill -f process`
+
+Pipes & redirection
+
+`cmd1 | cmd2 
+`cmd > out.txt 
+`cmd >> append.txt 
+`cmd 2> errors.txt 
+`cmd &> both.txt`
+
+# Quick `grep`, `awk`, `sed` utilities
+
+`grep`
+
+`grep -n "TODO" -R .            # search recursively with line numbers 
+`ps aux | grep -i nginx         # case-insensitive 
+`dmesg | grep -i error`
+
+`awk` — simple field extraction
+
+`# print 1st and 5th columns of /etc/passwd 
+`awk -F: '{print $1, $5}' /etc/passwd 
+`awk '{sum += $3} END {print sum}' file # sum 3rd column 
+
+
+`sed` — stream edit
+
+`# replace foo with bar in stream 
+`sed 's/foo/bar/g' file 
+`sed '/^$/d' file # delete blank lines 
+
+# Mini Bash scripting (teach structure + shebang)
+
+Show this script live and run it:
+
+`backup_home.sh`
+
+`#!/usr/bin/env bash 
+set -euo pipefail 
+IFS=$'\n\t'  
+`# simple dated backup of ~/projects to /tmp 
+SRC="$HOME/projects" 
+DEST="/tmp/backups" 
+DATE=$(date +%Y%m%d-%H%M%S) 
+mkdir -p "$DEST" 
+tar -czf "$DEST/projects-$DATE.tgz" -C "$HOME" projects 
+echo "Backup saved to $DEST/projects-$DATE.tgz"`
+
+How to run:
+
+`chmod +x backup_home.sh ./backup_home.sh`
+
+Explain `set -euo pipefail` and `IFS` quickly — saves beginners from weird mistakes.
+
+# Automation idea: cron example
+
+Show them how to add a cron job:
+
+`# edit crontab for current user 
+`crontab -e # run every day at 2am: 
+`0 2 * * * /home/you/scripts/backup_home.sh >> /var/log/backup.log 2>&1`
+
+# `nmap` basics (show safe, permission-respecting scans)
+
+Always emphasize permission. Demo on a lab VM or localhost.
+
+Common scans:
+
+`nmap -sS -Pn -p 1-1024 target.ip          # stealth SYN scan of ports 1-1024 
+`nmap -sV -O --version-intensity 2 target  # detect services + OS 
+`nmap -A target                            # aggressive (service detection, scripts) 
+`nmap -p 22,80,443 -T4 target              # specific ports, faster timing 
+`nmap -oN result.txt target                # save output`
+
+Explain `-Pn`, `-sS`, `-sT`, timing (`-T0..-T5`), and verbosity (`-v`).
+
+Quick `nmap` one-liners for labs:
+
+`nmap -v -A 192.168.56.101 
+`nmap -p- --min-rate 1000 192.168.56.101   # full port scan, fast`
+
+# `netcat` (`nc`) basics — listeners & quick file transfer
+
+`netcat` is versatile. Again: only on allowed targets.
+
+Simple listener (receiver):
+
+`# on receiving machine 
+`nc -l -p 1234 > received.file 
+`nc target.ip 1234 < file.to.send # on sending machine `
+
+Quick chat (dev/demo):
+
+`# receiver 
+`nc -l -p 4444 
+`# sender 
+`nc target.ip 4444 
+`# type messages on both ends`
+
+Port scanning with netcat:
+
+`# check if port 80 open 
+`nc -zv target.ip 80 
+`# scan range (slow, but fine for small labs) 
+`for p in {1..1024}; do nc -z -w1 target.ip $p && echo "open $p"; done`
+
+# exercises 
+
+Tasks 5–10 minutes each:
+
+1. Navigation & files
+    
+
+- Find all `.sh` files modified in the last 7 days and list their permissions.
+    
+
+`find ~ -type f -name '*.sh' -mtime -7 -exec ls -l {} \;`
+
+2. Text processing
+    
+
+- From `/var/log/syslog` (or sample file), show top 5 most frequent IP addresses:
+    
+
+`grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' sample.log | sort | uniq -c | sort -nr | head`
+
+    
+4. `nmap` lab: from your lab VM, run a safe `nmap -sV` against the target VM and identify two open services.
+    
+5. `netcat` transfer: transfer a small text file between two lab machines.
+    
+
+# Troubleshooting common pains (what you’ll hear)
+
+- “Command not found” — install the package (`apt install nmap netcat-openbsd tree`).
+    
+- Permission denied — `sudo` or file mode issues.
+    
+- Grep returns nothing — check regex and use `-i` or `-R`.
+    
+- Netcat connect refused — check firewall, service running, or wrong IP.
+    
+- Script fails silently — add `set -x` for debugging and `set -euo pipefail`.
+    
+
+# Demo-ready one-liners you 
+
+
+Disk usage:
+
+`du -sh * | sort -h df -hT`
+
+Find large files:
+
+`find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | awk '{print $9, $5}'`
+
+Quick webserver:
+
+`# serve current dir on port 8000 (Python) python3 -m http.server 8000`
+
+Extract column from CSV:
+
+`cut -d',' -f2 file.csv | sort | uniq -c | sort -nr | head`
+
+# Handout 
+
+- Basic navigation: `pwd, ls, cd, tree, find`
+    
+- File ops: `cp, mv, rm, mkdir, touch, stat`
+    
+- Permissions: `chmod, chown, sudo`
+    
+- Processes: `ps, top, jobs, fg, bg, pkill`
+    
+- Pipes & redirect: `|, >, >>, 2>, &>`
+    
+- Text: `grep, awk, sed, cut, sort, uniq`
+    
+- Scripting: `#!/usr/bin/env bash`, `set -euo pipefail`, arguments `$1`, `$@`
+    
+- Automation: cron basics
+    
+- Tools: `nmap` (scans), `nc` (listener, transfer)
+    
+- Ethics: DON’T scan without permission
+    
+
+# Homework for the lads 
+
+1. Write a script that zips `~/projects` and keeps last 7 backups.
+    
+2. Use `grep`/`awk` to find top 3 users by number of processes on the machine.
+    
+3. Run `nmap -sV` against a VM you own and paste the top 5 results.
+    
+4. Transfer a file using `nc` between two VMs.
+    
+5. Make a one-line `find` that lists files >50MB in $HOME.
+    
