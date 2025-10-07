@@ -1,0 +1,89 @@
+**Title:* Week 1 — Introduction & Installation  
+**Outcome:** By end of session you’ll have a working Kali VM or TryHackMe AttackBox and will finish a micro-CTF (nmap scan).
+
+---
+
+
+- Only scan the IP I give.
+    
+- No attacks outside lab targets.
+    
+- Ask in chat if stuck; type `VMERR` for urgent VM problems.
+    
+
+---
+
+## Agenda 
+
+- Intro & expectations 
+    
+- Install VirtualBox / VMware 
+    
+- Create & configure Kali VM 
+    
+- Create TryHackMe account / AttackBox 
+    
+- Micro-CTF: `nmap -sV` 
+    
+    
+
+---
+
+## Step 1 — Install VirtualBox (or VMware)
+
+1. Download & install VirtualBox (or VMware Workstation Player).
+    
+2. Run the app as **Administrator** (right-click → Run as admin).
+    
+3. Make sure you have **≥ 20 GB free** disk and **at least 4 GB RAM** free.
+    
+
+---
+
+## Step 2 — Create a Kali VM (quick factory setup)
+
+1. VirtualBox → **New**
+    
+    - Name: `kali-demo`
+        
+    - Type: **Linux**, Version: **Debian (64-bit)** or **Kali** if listed
+        
+2. Memory: **2048 MB** minimum (4096 MB recommended)
+    
+3. Hard disk: **Create a virtual hard disk now** → VDI → Dynamically allocated → **20 GB**
+    
+4. Settings → Storage → Click **Empty CD** → Attach **Kali ISO** (if using ISO)
+    
+5. Settings → System → Processor → set **2 CPUs** if available
+    
+6. Settings → Network → Adapter 1 → **NAT**
+    
+7. Start VM → Follow Kali installer (use defaults)
+    
+
+---
+
+##  weak laptop — Use TryHackMe AttackBox
+
+1. Go to **tryhackme.com** → register (free) → login
+    
+2. Click **Start AttackBox** → you get a browser-based Kali terminal
+    
+3. Use AttackBox for all commands below if your VM fails
+   
+   
+   
+   
+   # Check OS & kernel
+uname -a
+
+# Show network interfaces
+ip a
+
+# Test internet connectivity
+ping -c 3 8.8.8.8
+
+# Update system (optional after install)
+sudo apt update && sudo apt -y upgrade
+
+
