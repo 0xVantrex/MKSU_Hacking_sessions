@@ -6,7 +6,7 @@ Navigation + filesystem
 
 `pwd                # print working directory 
 `ls -la             # list with hidden, long format 
-`cd /path/to/dir    # change dir 
+`cd /path/to/dir    # change directory
 `tree -L 2          # directory tree
 `find /var/log -type f -name "*.log" -exec grep -i error {} +   `
 `# find files{find [WHERE to look] [WHAT to match] [WHAT to do when matched]}
